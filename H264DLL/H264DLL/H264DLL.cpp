@@ -24,42 +24,42 @@ x264_t* pX264Handle = NULL;
 x264_picture_t* pPicIn ;
 x264_picture_t* pPicOut;
 
-//³õÊ¼»¯DLL²ÎÊı
-//==0 success £¬<0 false 
+//åˆå§‹åŒ–DLLå‚æ•°
+//==0 success ï¼Œ<0 false 
 extern __declspec(dllexport) int InitDLL(paramInput *paramUser)
 {
     x264_param_t* pX264Param = new x264_param_t;
 	x264_param_default_preset(pX264Param, "ultrafast", "zerolatency");
 	pX264Param->i_threads =1;
-	pX264Param->i_width = paramUser->width; //* ¿í¶È.
-	pX264Param->i_height =paramUser->height ; //* ¸ß¶È
+	pX264Param->i_width = paramUser->width; //* å®½åº¦.
+	pX264Param->i_height =paramUser->height ; //* é«˜åº¦
 	pX264Param->i_keyint_min=5;
     pX264Param->i_keyint_max=2;
 	//pX264Param->i_bframe_pyramid = 0;
 	//pX264Param->i_bframe_adaptive = X264_B_ADAPT_TRELLIS;
-	pX264Param->i_bframe = 16;  //IºÍPÖ®¼äµÄBÖ¡Êı 
+	pX264Param->i_bframe = 16;  //Iå’ŒPä¹‹é—´çš„Bå¸§æ•° 
 	pX264Param->rc.i_bitrate = 40960;
 	pX264Param->rc.i_rc_method =X264_RC_CRF;
 	//pX264Param->b_intra_refresh = 1;
-	pX264Param->i_fps_den = 1; //* Ö¡ÂÊ·ÖÄ¸
-	pX264Param->i_fps_num = paramUser->fps; //* Ö¡ÂÊ·Ö×Ó
+	pX264Param->i_fps_den = 1; //* å¸§ç‡åˆ†æ¯
+	pX264Param->i_fps_num = paramUser->fps; //* å¸§ç‡åˆ†å­
 	x264_param_apply_profile(pX264Param, x264_profile_names[0]);
-	//* ´ò¿ª±àÂëÆ÷¾ä±ú,Í¨¹ıx264_encoder_parametersµÃµ½ÉèÖÃ¸øX264
-	//* µÄ²ÎÊı.Í¨¹ıx264_encoder_reconfig¸üĞÂX264µÄ²ÎÊı
+	//* æ‰“å¼€ç¼–ç å™¨å¥æŸ„,é€šè¿‡x264_encoder_parameterså¾—åˆ°è®¾ç½®ç»™X264
+	//* çš„å‚æ•°.é€šè¿‡x264_encoder_reconfigæ›´æ–°X264çš„å‚æ•°
 	pX264Handle = x264_encoder_open(pX264Param);
 	if (pX264Handle==NULL)
 	{
 		return -1;
 	}
-	//* »ñÈ¡Õû¸öÁ÷µÄPPSºÍSPS,²»ĞèÒª¿ÉÒÔ²»µ÷ÓÃ.
+	//* è·å–æ•´ä¸ªæµçš„PPSå’ŒSPS,ä¸éœ€è¦å¯ä»¥ä¸è°ƒç”¨.
 	iResult = x264_encoder_headers(pX264Handle, &pNals, &iNal);
 	if (iResult<0)
 	{
 		return -2;
 	}
-	//* »ñÈ¡ÔÊĞí»º´æµÄ×î´óÖ¡Êı.
+	//* è·å–å…è®¸ç¼“å­˜çš„æœ€å¤§å¸§æ•°.
 	int iMaxFrames = x264_encoder_maximum_delayed_frames(pX264Handle);
-	//* ±àÂëĞèÒªµÄ²ÎÊı.
+	//* ç¼–ç éœ€è¦çš„å‚æ•°.
     pPicIn = new x264_picture_t;
     pPicOut = new x264_picture_t;
 	x264_picture_init(pPicOut);
@@ -69,8 +69,8 @@ extern __declspec(dllexport) int InitDLL(paramInput *paramUser)
 	pPicIn->img.i_plane = 3;
 	pPicIn->i_type= X264_TYPE_AUTO;
 	BYTE *bufptr;
-	//* ´´½¨ÎÄ¼ş,ÓÃÓÚ´æ´¢±àÂëÊı¾İ
-	//* Ê¾ÀıÓÃ±àÂëÊı¾İ.
+	//* åˆ›å»ºæ–‡ä»¶,ç”¨äºå­˜å‚¨ç¼–ç æ•°æ®
+	//* ç¤ºä¾‹ç”¨ç¼–ç æ•°æ®.
 	iDataLen = pX264Param->i_width * pX264Param->i_height;
 	filesize=pX264Param->i_width * pX264Param->i_height*1.5;
 	return 0;
@@ -81,16 +81,16 @@ extern __declspec(dllexport) int EncodeBuf(BYTE *inBuf,int inBufsize,int picType
      if(inBufsize<filesize) return -1;
 	 if (picType==0)  //yuv12
 	 {
-	 memcpy(pPicIn->img.plane[0], inBuf,iDataLen);//YUVµÄY·ÖÁ¿
-	 memcpy(pPicIn->img.plane[2], inBuf+iDataLen, iDataLen / 4);//YUVµÄU·ÖÁ¿
-	 memcpy(pPicIn->img.plane[1], inBuf+iDataLen+iDataLen / 4, iDataLen / 4);//YUVµÄV·ÖÁ¿  
+	 memcpy(pPicIn->img.plane[0], inBuf,iDataLen);//YUVçš„Yåˆ†é‡
+	 memcpy(pPicIn->img.plane[2], inBuf+iDataLen, iDataLen / 4);//YUVçš„Uåˆ†é‡
+	 memcpy(pPicIn->img.plane[1], inBuf+iDataLen+iDataLen / 4, iDataLen / 4);//YUVçš„Våˆ†é‡  
 	 }if (picType==1)  //yuv420
 	 {
-		 memcpy(pPicIn->img.plane[0], inBuf,iDataLen);//YUVµÄY·ÖÁ¿
-		 memcpy(pPicIn->img.plane[1], inBuf+iDataLen, iDataLen / 4);//YUVµÄU·ÖÁ¿
-		 memcpy(pPicIn->img.plane[2], inBuf+iDataLen+iDataLen / 4, iDataLen / 4);//YUVµÄV·ÖÁ¿
+		 memcpy(pPicIn->img.plane[0], inBuf,iDataLen);//YUVçš„Yåˆ†é‡
+		 memcpy(pPicIn->img.plane[1], inBuf+iDataLen, iDataLen / 4);//YUVçš„Uåˆ†é‡
+		 memcpy(pPicIn->img.plane[2], inBuf+iDataLen+iDataLen / 4, iDataLen / 4);//YUVçš„Våˆ†é‡
 	 }
-	 //¿ªÊ¼±àÂë 	
+	 //å¼€å§‹ç¼–ç  	
 	if (uiComponent <= 1000) 
 	{
 		  pPicIn->i_pts = uiComponent + g_uiPTSFactor * 1000;
@@ -100,13 +100,13 @@ extern __declspec(dllexport) int EncodeBuf(BYTE *inBuf,int inBufsize,int picType
 		int iResult = x264_encoder_encode(pX264Handle, &pNals, &iNal, NULL, pPicOut);
 		if (0 == iResult) 
 		{
-		//break; //* È¡¿Õ,Ìø³ö
+		//break; //* å–ç©º,è·³å‡º
 		uiComponent = 0;
 		++g_uiPTSFactor;
 		}
 		uiComponent++;
     }
-	//½«±àÂëÊı¾İĞ´Èë»º³å
+	//å°†ç¼–ç æ•°æ®å†™å…¥ç¼“å†²
 	int outBufsize=0;
 	BYTE *bufptr=(BYTE *)outBuf;
     for (int i=0;i<iNal;++i)
