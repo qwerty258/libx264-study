@@ -1,19 +1,9 @@
-// H264DLL.cpp : Defines the exported functions for the DLL application.
-//
-
 #include "H264DLL.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+#include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
 #include <x264.h>
-
-#ifdef __cplusplus
-}
-#endif
 
 unsigned int g_uiPTSFactor = 0;
 unsigned int uiComponent = 0;
@@ -28,7 +18,7 @@ x264_picture_t* pPicOut;
 //==0 success ，<0 false 
 int InitDLL(paramInput* paramUser)
 {
-    x264_param_t* pX264Param = new x264_param_t;
+    x264_param_t* pX264Param = malloc(sizeof(x264_param_t));
     x264_param_default_preset(pX264Param, "ultrafast", "zerolatency");
     pX264Param->i_threads = 1;
     pX264Param->i_width = paramUser->width; //* 宽度.
@@ -60,8 +50,8 @@ int InitDLL(paramInput* paramUser)
     //* 获取允许缓存的最大帧数.
     int iMaxFrames = x264_encoder_maximum_delayed_frames(pX264Handle);
     //* 编码需要的参数.
-    pPicIn = new x264_picture_t;
-    pPicOut = new x264_picture_t;
+    pPicIn = malloc(sizeof(x264_picture_t));
+    pPicOut = malloc(sizeof(x264_picture_t));
     x264_picture_init(pPicOut);
     x264_picture_alloc(pPicIn, X264_CSP_I420, pX264Param->i_width,
         pX264Param->i_height);
